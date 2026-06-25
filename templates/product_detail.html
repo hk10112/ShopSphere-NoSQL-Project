@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — ShopSphere{% endblock %}
+
+{% block content %}
+<div class="product-detail">
+  {% if product.image_url %}
+    <img class="product-image" src="{{ product.image_url }}" alt="{{ product.name }}">
+  {% endif %}
+  <div>
+    <h1>{{ product.name }}</h1>
+    <p class="category-tag">{{ product.category }}</p>
+    <p class="price">${{ "%.2f" | format(product.price) }}</p>
+    <p class="stock">{{ product.stock }} in stock</p>
+    <p>{{ product.description }}</p>
+
+    <p class="avg-rating">
+      {% if avg_rating is not none %}
+        ⭐ <strong>{{ avg_rating }}</strong> / 5
+        ({{ reviews | length }} review{{ 's' if reviews | length != 1 }})
+      {% else %}
+        No reviews yet — be the first!
+      {% endif %}
+    </p>
+
+    <div class="actions">
+      <a class="btn" href="{{ url_for('edit_product', product_id=product.product_id) }}">Edit</a>
+      <form method="post" action="{{ url_for('delete_product', product_id=product.product_id) }}"
+            onsubmit="return confirm('Delete this product and all of its reviews?');" style="display:inline">
+        <button type="submit" class="btn danger">Delete (admin)</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<h2>Submit a Review</h2>
+<form method="post" action="{{ url_for('add_review', product_id=product.product_id) }}" class="review-form">
+  <label>Your name
+    <input type="text" name="customer_name" required maxlength="60">
+  </label>
+  <label>Rating
+    <select name="rating" required>
+      {% for i in [5,4,3,2,1] %}
+        <option value="{{ i }}">{{ i }} — {{ '⭐' * i }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Comment
+    <textarea name="comment" rows="3" required maxlength="500"></textarea>
+  </label>
+  <button type="submit" class="btn">Post review</button>
+</form>
+
+<h2>Reviews</h2>
+<div class="sort-bar">
+  Sort by:
+  <a href="{{ url_for('product_detail', product_id=product.product_id, sort='date') }}"
+     class="{{ 'active' if sort_by == 'date' }}">Newest first</a> |
+  <a href="{{ url_for('product_detail', product_id=product.product_id, sort='rating') }}"
+     class="{{ 'active' if sort_by == 'rating' }}">Highest rating</a>
+</div>
+
+{% if reviews %}
+  {% for r in reviews %}
+    <div class="review">
+      <div class="review-head">
+        <strong>{{ r.customer_name }}</strong>
+        <span class="stars">{{ '⭐' * (r.rating | int) }}</span>
+        <span class="date">{{ r.created_at[:19].replace('T', ' ') }}</span>
+      </div>
+      <p>{{ r.comment }}</p>
+    </div>
+  {% endfor %}
+{% else %}
+  <p class="empty-state">This product has no reviews yet.</p>
+{% endif %}
+{% endblock %}

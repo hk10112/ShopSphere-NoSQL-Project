@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if mode == 'edit' else 'Add' }} Product — ShopSphere{% endblock %}
+
+{% block content %}
+<h1>{{ 'Edit Product' if mode == 'edit' else 'Add New Product' }}</h1>
+
+<form method="post" class="product-form">
+  <label>Name
+    <input type="text" name="name" required maxlength="100"
+           value="{{ product.name if product else '' }}">
+  </label>
+  <label>Description
+    <textarea name="description" rows="4" maxlength="1000">{{ product.description if product else '' }}</textarea>
+  </label>
+  <label>Category
+    <input type="text" name="category" required maxlength="50"
+           value="{{ product.category if product else '' }}"
+           placeholder="e.g. Electronics, Home, Sports">
+  </label>
+  <label>Price (USD)
+    <input type="number" name="price" step="0.01" min="0" required
+           value="{{ product.price if product else '' }}">
+  </label>
+  <label>Stock quantity
+    <input type="number" name="stock" step="1" min="0" required
+           value="{{ product.stock if product else '' }}">
+  </label>
+  <label>Image URL (optional)
+    <input type="url" name="image_url" maxlength="500"
+           value="{{ product.image_url if product else '' }}">
+  </label>
+
+  <button type="submit" class="btn">{{ 'Save changes' if mode == 'edit' else 'Create product' }}</button>
+  <a class="btn secondary" href="{{ url_for('index') }}">Cancel</a>
+</form>
+{% endblock %}

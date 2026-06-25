@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Catalog — ShopSphere{% endblock %}
+
+{% block content %}
+<h1>Product Catalog</h1>
+
+<form method="get" action="{{ url_for('index') }}" class="filter-bar">
+  <label for="category">Filter by category:</label>
+  <select name="category" id="category" onchange="this.form.submit()">
+    <option value="">All categories</option>
+    {% for c in categories %}
+      <option value="{{ c }}" {% if c == selected_category %}selected{% endif %}>{{ c }}</option>
+    {% endfor %}
+  </select>
+  <noscript><button type="submit">Filter</button></noscript>
+  {% if selected_category %}
+    <span class="hint">Showing category "{{ selected_category }}" — fetched with a <strong>GSI Query</strong> (not a Scan).</span>
+  {% endif %}
+</form>
+
+{% if products %}
+  <div class="grid">
+    {% for p in products %}
+      <div class="card">
+        {% if p.image_url %}
+          <img src="{{ p.image_url }}" alt="{{ p.name }}">
+        {% endif %}
+        <h3><a href="{{ url_for('product_detail', product_id=p.product_id) }}">{{ p.name }}</a></h3>
+        <p class="category-tag">{{ p.category }}</p>
+        <p class="price">${{ "%.2f" | format(p.price) }}</p>
+        <p class="stock">{{ p.stock }} in stock</p>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="empty-state">
+    <p>The catalog is empty{% if selected_category %} for this category{% endif %}.</p>
+    <a href="{{ url_for('add_product') }}">Add the first product →</a>
+  </div>
+{% endif %}
+{% endblock %}
